@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VREEM - Freedom P2P Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="switchTab('home')">
+                <div class="bg-emerald-500 text-slate-950 w-9 h-9 rounded-xl font-black flex items-center justify-center text-lg">V</div>
+                <div>
+                    <h1 class="text-base font-extrabold tracking-wider text-white">VREEM</h1>
+                    <p class="text-[10px] text-emerald-400">Decentralized P2P Market</p>
+                </div>
+            </div>
+            
+            <div class="flex-1 max-w-xs mx-4 hidden sm:block">
+                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Search VREEM..." class="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <div id="userNav" class="flex items-center space-x-3"></div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 space-y-4">
+
+        <!-- FREEDOM BANNER -->
+        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-xs text-emerald-200 flex items-start gap-3">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-base mt-0.5"></i>
+            <div>
+                <strong class="font-bold text-emerald-400">Ogeysiis:</strong> Wax kasta waad ku iibin kartaa, xor wye. Si wanagsan ayaad u isticmaashaa rajeynayaa!
+            </div>
+        </div>
+
+        <!-- AUTH TAB -->
+        <div id="authTab" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-2xl">
+            <div class="text-center space-y-2">
+                <div class="bg-emerald-500/10 text-emerald-400 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold border border-emerald-500/20">
+                    <i class="fa-solid fa-fingerprint"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white">Join VREEM Market</h2>
+                <p class="text-xs text-slate-400">Register with your Gmail or Phone Number to buy or list items freely.</p>
+            </div>
+
+            <form onsubmit="handleAuth(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Your Full Name</label>
+                    <input type="text" id="regName" required placeholder="e.g. Ahmed Ali" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Gmail or Phone Number</label>
+                    <input type="text" id="regContact" required placeholder="name@gmail.com or +25261xxxxxxx" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Select Your Role</label>
+                    <select id="regRole" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        <option value="buyer">Buyer (Looking for products)</option>
+                        <option value="vendor">Vendor (Selling & listing items)</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl transition text-xs shadow-lg shadow-emerald-500/10">
+                    Get Started Securely
+                </button>
+            </form>
+        </div>
+
+        <!-- HOME MARKETPLACE TAB -->
+        <div id="homeTab" class="space-y-6 hidden">
+            <!-- Banner -->
+            <div class="bg-gradient-to-r from-slate-900 to-emerald-950 border border-slate-800 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="space-y-2">
+                    <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-3 py-1 rounded-full font-bold uppercase">Automated P2P Freedom Market</span>
+                    <h2 class="text-2xl font-black text-white">Trade Anything, Anytime</h2>
+                    <p class="text-xs text-slate-400 max-w-md">VREEM connects buyers and vendors directly with automated Trust Wallet checkout and direct broker commission support.</p>
+                </div>
+                <div id="heroAction"></div>
+            </div>
+
+            <!-- Categories -->
+            <div class="flex overflow-x-auto space-x-2 pb-2 scrollbar-none" id="catContainer">
+                <button onclick="setCategory('All')" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-emerald-500 text-slate-950 transition">All Items</button>
+                <button onclick="setCategory('General')" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-900 text-slate-300 border border-slate-800 hover:bg-slate-800 transition">📦 General Goods</button>
+                <button onclick="setCategory('Cars')" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-900 text-slate-300 border border-slate-800 hover:bg-slate-800 transition">🚗 Cars & Vehicles</button>
+                <button onclick="setCategory('Electronics')" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-900 text-slate-300 border border-slate-800 hover:bg-slate-800 transition">📱 Tech & Electronics</button>
+                <button onclick="setCategory('Tools')" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-900 text-slate-300 border border-slate-800 hover:bg-slate-800 transition">🛠 Tools & Hardware</button>
+                <button onclick="setCategory('Other')" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-900 text-slate-300 border border-slate-800 hover:bg-slate-800 transition">⚡ Other Listings</button>
+            </div>
+
+            <!-- Grid -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-center text-xs text-slate-400">
+                    <span id="itemCount">0 listings available</span>
+                    <span class="text-emerald-400">Secured via VREEM Protocol</span>
+                </div>
+                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+            </div>
+        </div>
+
+        <!-- POST ITEM TAB -->
+        <div id="postTab" class="max-w-lg mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 hidden space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white">List Product on VREEM</h2>
+                    <p class="text-[11px] text-slate-400">Automated broker fee applies upon sale.</p>
+                </div>
+                <button onclick="switchTab('home')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form onsubmit="handlePost(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Category</label>
+                    <select id="pCat" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        <option value="General">📦 General Goods</option>
+                        <option value="Cars">🚗 Cars & Vehicles</option>
+                        <option value="Electronics">📱 Tech & Electronics</option>
+                        <option value="Tools">🛠️ Tools & Hardware</option>
+                        <option value="Other">⚡ Other Listings</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Title</label>
+                    <input type="text" id="pTitle" required placeholder="e.g. Item Name" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Price ($)</label>
+                    <input type="number" id="pPrice" required placeholder="50" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Product Photo</label>
+                    <input type="file" id="pImage" accept="image/*" required class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-slate-800 file:text-emerald-400 border border-slate-800 rounded-xl p-2">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Description & Contact Info</label>
+                    <textarea id="pDesc" rows="3" required placeholder="Details and your phone number..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl transition text-xs shadow">
+                    Publish Listing
+                </button>
+            </form>
+        </div>
+
+        <!-- CHECKOUT MODAL -->
+        <div id="checkoutModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h3 class="font-bold text-white text-sm flex items-center gap-1.5"><i class="fa-brands fa-bitcoin text-amber-400"></i> Trust Wallet Checkout</h3>
+                    <button onclick="closeCheckout()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div id="checkoutInfo" class="space-y-2 text-xs text-slate-300"></div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Discount Code</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="discInput" placeholder="e.g. VREEM5" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        <button onclick="applyDisc()" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-700">Apply</button>
+                    </div>
+                    <p id="discMsg" class="text-[11px] mt-1"></p>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl text-[11px] text-slate-400 space-y-1">
+                    <p class="font-bold text-slate-200">Broker Wallet Address (Your Personal Trust Wallet):</p>
+                    <p class="text-[10px] text-slate-400">Send payment to the official platform broker address below:</p>
+                    <p class="font-mono bg-slate-900 p-2 rounded text-emerald-400 select-all border border-slate-800 break-all">THWvQ98chh5W8iveZ6joZLGn358MmpHt9Y</p>
+                </div>
+                <button onclick="completePayment()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 rounded-xl transition text-xs shadow">
+                    Confirm Payment & Notify Broker
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-[11px] text-slate-500">
+        <p>&copy; 2026 VREEM Protocol. Decentralized Global P2P Market.</p>
+    </footer>
+
+    <!-- SCRIPT -->
+    <script>
+        let currentUser = JSON.parse(localStorage.getItem('vreem_user')) || null;
+        let products = JSON.parse(localStorage.getItem('vreem_products')) || [
+            { id: 1, title: "Smart Watch Ultra V2", category: "Electronics", price: 45, seller: "Hassan (+252610000)", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=500", desc: "Brand new device.", satisfied: 3, scammed: 0 }
+        ];
+
+        let activeCat = 'All';
+        let selectedProd = null;
+        let discRate = 0;
+
+        document.addEventListener("DOMContentLoaded", () => updateUI());
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const contact = document.getElementById('regContact').value.trim();
+            const role = document.getElementById('regRole').value;
+            if(!name || !contact) return;
+
+            currentUser = { name, contact, role };
+            localStorage.setItem('vreem_user', JSON.stringify(currentUser));
+            updateUI();
+            switchTab('home');
+        }
+
+        function logout() {
+            localStorage.removeItem('vreem_user');
+            currentUser = null;
+            updateUI();
+        }
+
+        function updateUI() {
+            const nav = document.getElementById('userNav');
+            const hero = document.getElementById('heroAction');
+
+            if(!currentUser) {
+                nav.innerHTML = `<button onclick="switchTab('auth')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs transition">Sign In</button>`;
+                switchTab('auth');
+                return;
+            }
+
+            nav.innerHTML = `
+                <div class="text-right hidden sm:block">
+                    <p class="text-xs font-bold text-white">${currentUser.name}</p>
+                    <p class="text-[10px] text-emerald-400 uppercase">${currentUser.role} • ${currentUser.contact}</p>
+                </div>
+                <button onclick="logout()" class="bg-slate-900 border border-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 p-2 rounded-xl text-xs transition"><i class="fa-solid fa-power-off"></i></button>
+            `;
+
+            if(currentUser.role === 'vendor') {
+                hero.innerHTML = `<button onclick="switchTab('post')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition shadow"><i class="fa-solid fa-plus mr-1"></i> List Item</button>`;
+            } else {
+                hero.innerHTML = `<span class="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 rounded-xl block">Buyer Profile Active</span>`;
+            }
+        }
+
+        function switchTab(tab) {
+            if(!currentUser && tab !== 'auth') tab = 'auth';
+            document.getElementById('authTab').classList.add('hidden');
+            document.getElementById('homeTab').classList.add('hidden');
+            document.getElementById('postTab').classList.add('hidden');
+
+            if(tab === 'auth') document.getElementById('authTab').classList.remove('hidden');
+            else if(tab === 'home') {
+                document.getElementById('homeTab').classList.remove('hidden');
+                renderProducts();
+            } else if(tab === 'post') {
+                if(currentUser && currentUser.role === 'vendor') document.getElementById('postTab').classList.remove('hidden');
+                else {
+                    alert('Only vendors can list items!');
+                    switchTab('home');
+                }
+            }
+        }
+
+        function setCategory(cat) {
+            activeCat = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                if(b.textContent.includes(cat) || (cat === 'All' && b.textContent.includes('All'))) {
+                    b.className = "cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-emerald-500 text-slate-950 transition";
+                } else {
+                    b.className = "cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-900 text-slate-300 border border-slate-800 hover:bg-slate-800 transition";
+                }
+            });
+            renderProducts();
+        }
+
+        function rate(id, type) {
+            products = products.map(p => {
+                if(p.id === id) {
+                    if(type === 'sat') p.satisfied = (p.satisfied || 0) + 1;
+                    if(type === 'scm') p.scammed = (p.scammed || 0) + 1;
+                }
+                return p;
+            });
+            localStorage.setItem('vreem_products', JSON.stringify(products));
+            renderProducts();
+        }
+
+        function openCheckout(id) {
+            selectedProd = products.find(p => p.id === id);
+            if(!selectedProd) return;
+            discRate = 0;
+            document.getElementById('discInput').value = '';
+            document.getElementById('discMsg').textContent = '';
+            updateCheckout();
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        function applyDisc() {
+            const code = document.getElementById('discInput').value.trim().toUpperCase();
+            const msg = document.getElementById('discMsg');
+            if(code === 'VREEM5' || code === 'SAVE') {
+                discRate = 0.05;
+                msg.textContent = 'Discount applied (-5%)';
+                msg.className = 'text-[11px] text-emerald-400 mt-1 font-bold';
+            } else {
+                discRate = 0;
+                msg.textContent = 'Invalid code';
+                msg.className = 'text-[11px] text-red-400 mt-1';
+            }
+            updateCheckout();
+        }
+
+        function updateCheckout() {
+            const p = selectedProd;
+            const final = p.price * (1 - discRate);
+            const fee = (final * 0.05).toFixed(2);
+            document.getElementById('checkoutInfo').innerHTML = `
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+                    <p class="font-bold text-white">${p.title}</p>
+                    <p class="text-slate-400">Vendor: ${p.seller}</p>
+                    <p class="text-slate-400">Price: $${p.price}</p>
+                    ${discRate > 0 ? `<p class="text-emerald-400">Discount: -5%</p>` : ''}
+                    <p class="text-white font-black pt-1 border-t border-slate-800">Total: $${final.toFixed(2)}</
